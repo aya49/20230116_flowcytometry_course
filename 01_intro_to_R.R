@@ -17,7 +17,7 @@ x1 <- 1 # replaces previously assignmed value, 5
 x1
 
 x2 <- 2
-x3 <- 1 + 2
+x3 <- x1 + x2
 
 
 # strings, a sequence of characters
@@ -72,8 +72,8 @@ nm
 nm[2,1] # single numeric
 nm[c(1:2),2] # matrix
 nm[1,] # vector
-nm["row1",]
 nm[,2]
+nm["row1",]
 nm[,"column2"]
 
 nm2 <- nm[,2] # vector
@@ -92,6 +92,9 @@ if (x1 < 10) {
 
 if (x1 <= 10) {
   print("x1 is less than or equal to 10")
+}
+if (x1 != 10) {
+  print("x1 is not 10")
 }
 if (x1 == 10) {
   print("x1 is 10")
@@ -117,6 +120,13 @@ if (x1 < 10) {
   print("x1 is greater than 10")
 }
 
+if (x1 > 5 & x1 < 15) {
+  print("x1 is greater than 5 and less than 15")
+}
+if (x1 > 25 | x1 < 15) {
+  print("x1 is either greater than 25 or less than 15")
+}
+
 
 ## loops: for, while
 for (i in c(3:10)) {
@@ -132,14 +142,14 @@ while (i <= 10) {
 
 ## functions, a set of pre-written code
 ## to see a description of the function, type "?" in front of it
-?print
-?length
-?matrix
-?dim
-?ncol
-?nrow
-?colnames
-?rownames
+? print
+? length
+? matrix
+? dim
+? ncol
+? nrow
+? colnames
+? rownames
 
 # you can create your own function too!
 # encapsulation: everything that happens in a function stays in the function.

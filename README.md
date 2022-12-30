@@ -24,8 +24,8 @@ This course is a 4 day x 4 hour course taught by Alice Yue, hosted on Physalia: 
 **Program**:
 - Support over Slack will be available throughout the course: <link>
 - 2023-01-16
-    - Session 1 Background on flow cytometry: This session will focus on the purpose of flow cytometry, a brief overview of its machinery, and what the data output looks like. We will also go over the steps in the flow cytometry data analysis pipeline.
-    - Session 2 Beginner's guide to R: Users will learn about the basics of R and we will set up the computational infrastructure for R on https://rstudio.cloud/.
+    - [Session 1 Background on flow cytometry](https://docs.google.com/presentation/d/1O1-l9bhTNjxBxotQkL2kOLpn5keE8tBXuIMzRn0bMw8/edit?usp=sharing): This session will focus on the purpose of flow cytometry, a brief overview of its machinery, and what the data output looks like. We will also go over the steps in the flow cytometry data analysis pipeline.
+    - [Session 2 Beginner's guide to R](https://docs.google.com/presentation/d/1PMrVL7BRuhdmD3DsEcP2uYgE3KZIGxtoLDoIkv7s9Bs/edit?usp=sharing) [scripts: [01_intro_to_R.R](./01_intro_to_R.R), [02_packages.R](./02_packages.R)]: Users will learn about the basics of R and we will set up the computational infrastructure for R on https://rstudio.cloud/.
 - 2023-01-17
     - Session 3 Preprocessing flow cytometry data: We will go through a theoretical overview of the steps in preprocessing flow cytometry samples. A practical hands-on walkthrough in R will follow.
 - 2023-01-18
