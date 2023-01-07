@@ -5,6 +5,7 @@ install.packages("stringr") # nice string manipulation functions
 install.packages("dplyr") # more data handling functions
 
 install.packages("umap") # UMAP dimensionality reduction function
+install.packages("Rtsne")
 install.packages("pracma") # practical math functions
 
 # if the BiocManager package has not been installed, install it.

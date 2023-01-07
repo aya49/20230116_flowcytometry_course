@@ -1,51 +1,3 @@
-## input: a list of packages
-## output: installs given packages
-install_pkgs_bioc <- function(pkgs2) {
-  # install bioconductor packages
-  pkgs3 <- setdiff(pkgs2, installed.packages())
-  if (length(pkgs3) > 0) {
-    devtools::install_bioc(pkgs3, verbose=F)
-  }
-}
-install_pkgs_cran <- function(pkgs1) {
-  # install cran packages
-  pkgs2 <- setdiff(pkgs1, installed.packages())
-  if (length(pkgs2) > 0) {
-    devtools::install_cran(pkgs2, verbose=F)
-  }
-}
-install_pkgs <- function(pkgs, repo=NULL) {
-  # install devtools to install packages from github
-  if (!"devtools"%in%installed.packages()) {
-    install.packages("devtools", verbose=F)
-  }
-  
-  # install github packages
-  pkgsgh <- grepl("[/]", pkgs)
-  if (any(pkgsgh)) {
-    pkgsghp <- pkgs[pkgsgh]
-    pkgsghn <- unlist( lapply(strsplit(pkgsghp, "/"), function(x) x[length(x)]) )
-    pkgs1 <- pkgsghp[!pkgsghn %in% installed.packages()]
-    if (length(pkgs1) > 0) {
-      for (pkgs1_ in pkgs1) {
-        devtools::install_github(pkgs1, verbose=F)
-      }
-    }
-    suppressWarnings(sapply(pkgsghn, require, character.only=TRUE))
-  }
-  
-  if (is.null(repo)) {
-    install_pkgs_cran(pkgs[!pkgsgh])
-    install_pkgs_bioc(pkgs[!pkgsgh])
-  } else if (repo=="bioc") {
-    install_pkgs_bioc(pkgs[!pkgsgh])
-  } else if (repo=="cran") {
-    install_pkgs_cran(pkgs[!pkgsgh])
-  }
-  
-  suppressWarnings(sapply(pkgs[!pkgsgh], require, character.only=TRUE))
-}
-
 ## input: start time and message
 ## output: duration since start time
 time_output <- function(start, msg="") {
@@ -99,4 +51,11 @@ densCols <- function(x, y=NULL, nbin=c(750,750), bandwidth=NULL, colramp=colorRa
   cols[select] <- colramp(length(dens))[colpal]
   
   return(list(cols=cols, map=map))
+}
+
+## rotate 2D frame
+## input: 2D matrix and angle
+## output: rotated 2D matrix
+rotate_data <- function(data, theta=pi/2 - atan(lm(data.new[,1] ~ data.new[,2])$coefficients[2])) {
+  data %*% matrix(c(cos(theta),-sin(theta),sin(theta),cos(theta)),2,2,byrow=T)
 }
