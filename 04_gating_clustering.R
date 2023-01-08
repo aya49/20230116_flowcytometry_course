@@ -7,6 +7,9 @@
 res_dir <- "/home/maruko/projects/gating"
 dir.create(res_dir)
 
+# source utilities file
+source(paste0(res_dir, "/utils.R"))
+
 # path to raw fcs file
 fcs_path <- "/home/maruko/projects/sangerP2.fcs"
 
@@ -787,34 +790,9 @@ graphics.off()
 ff <- flowWorkspace::cytoframe_to_flowFrame(
     as(flowWorkspace::gs_pop_get_data(gs, "b2bcells"), Class="list")[[1]] )
 
-# get threshold gates (frame)
-gate_cd23_low <- flowDensity::deGate(ff, channel="BV421-A", use.upper=TRUE, upper=FALSE)
-allTF <- flowCore::exprs(ff)[,"BV421-A"] >= gate_cd23_low
-flowCore::exprs(ff) <- flowCore::exprs(ff)[allTF,, drop=FALSE]
+ff2D <- flowCore::exprs(ff)[,c("BV421-A","PE-A")]
+pc <- Rphenograph::Rphenograph(ff2D, k=3)
 
-# rotate, get middle gate, tighten
-ffs <- ff
-flowCore::exprs(ffs)[,c("BV421-A","PE-A")] <- 
-    rotate_data(flowCore::exprs(ff)[,c("BV421-A","PE-A")], theta=-pi/8)
-
-gate_cd21_slanth_temp <- flowDensity::deGate(ffs, channel="PE-A")
-
-ffs_ <- ffs
-botTF <- flowCore::exprs(ffs)[,"PE-A"] >= gate_cd21_slanth_temp
-flowCore::exprs(ffs_) <- flowCore::exprs(ffs)[botTF,c("BV421-A","PE-A")]
-gate_cd21_slanth <- flowDensity::deGate(ffs_, channel="PE-A", use.upper=TRUE, upper=FALSE)
-
-topTF <- flowCore::exprs(ffs)[,"PE-A"] >= gate_cd21_slanth
-
-# rotate, but bottom vertical gate, get preB
-flowCore::exprs(ffs)[,c("BV421-A","PE-A")] <- 
-    rotate_data(flowCore::exprs(ffs)[,c("BV421-A","PE-A")], theta=-pi/8)
-ffs_ <- ffs
-flowCore::exprs(ffs_) <- flowCore::exprs(ffs)[!topTF,c("BV421-A","PE-A")]
-gate_cd23_slantv <- flowDensity::deGate(
-    ffs_, channel="BV421-A", 
-    use.upper=TRUE, upper=TRUE)
-gate_cd23_slanth <- flowDensity::deGate(ffs, channel="BV421-A")
 
 # register gates into gs
 mzbTF <- flowCore::exprs(ffs)[,"BV421-A"] <= gate_cd23_slanth
@@ -856,9 +834,9 @@ plot(d$y, d$x, type="l", xlab="", axes=FALSE, main="")
 
 par(mar=c(5,5,1,1))
 flowDensity::plotDens(ff, channels=c("BV421-A", "PE-A"), main="")
-lines(mzbfilter)
-lines(folbfilter)
-lines(prebfilter)
+for (i in 1:3) {
+    points(ff2D[kc$cluster==i,, drop=FALSE], cex=.1, col="red")
+}
 graphics.off()
 
 

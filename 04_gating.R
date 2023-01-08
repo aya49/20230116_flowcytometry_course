@@ -7,6 +7,9 @@
 res_dir <- "/home/maruko/projects/gating"
 dir.create(res_dir)
 
+# source utilities file
+source(paste0(res_dir, "/utils.R"))
+
 # path to raw fcs file
 fcs_path <- "/home/maruko/projects/sangerP2.fcs"
 
