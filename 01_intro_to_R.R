@@ -93,6 +93,19 @@ length(nm2)
 nm2 <- nm[,2, drop=FALSE] # matrix
 dim(nm2)
 
+newm <- rbind(xm, nm) # row bind two matrices together; column bind with cbind()
+newm
+dim(newm)
+
+# data.frame() is like matrix but each column can contain different types of variables
+d <- data.frame(name=c("bob", "mike", "emily"), age=c(10, 12, 13))
+d
+dim(d)
+nrow(d)
+ncol(d)
+d[["name"]] # columns can be accessed like a list element
+d[["age"]]
+
 
 ## if condition
 x1 <- 10

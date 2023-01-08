@@ -19,5 +19,4 @@ BiocManager::install("flowWorkspace")
 BiocManager::install("PeacoQC")
 BiocManager::install("flowDensity")
 BiocManager::install("FlowSOM")
-
 devtools::install_github("JinmiaoChenLab/Rphenograph")

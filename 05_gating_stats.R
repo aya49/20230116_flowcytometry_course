@@ -1,0 +1,118 @@
+## obtain stats and plots from gated fcs (gating set)
+## author: alice yue
+## input: gated gating set
+## output: stats and plots
+
+# directory to save and obtain results in
+res_dir <- "/home/maruko/projects/gating"
+
+# load gating set
+gs <- flowWorkspace::load_gs(paste0(res_dir, "/gs"))
+cpops <- flowWorkspace::gs_get_leaf_nodes(gs)
+
+
+## plots ####
+
+# gating tree
+flowWorkspace::plot(gs)
+
+# all gatings
+ggcyto::autoplot(gs[[1]], bins=100)
+
+# one gating
+ggcyto::autoplot(gs, cpops[1], bins=100)
+
+
+## stats ####
+
+# get the cell count/percent
+statsm <- data.frame(
+    cell_population=cpops,
+    cell_count=sapply(cpops, function(cp) 
+        flowWorkspace::gh_pop_get_count(gs, cp)) )
+total_count <- flowWorkspace::gh_pop_get_count(gs, "root")
+statsm[["cell_percent"]] <- statsm$cell_count / total_count
+
+# get the median/mean/SD/CV FI for each cell population and marker
+statsl <- list()
+for (cp in cpops) {
+    ff <- flowWorkspace::cytoset_to_flowSet(
+        flowWorkspace::gs_pop_get_data(gs, cp))[[1]]
+    marker <- flowWorkspace::markernames(ff)
+    mefi <- apply(flowCore::exprs(ff)[,names(marker),drop=FALSE], 2, median)
+    mfi <- apply(flowCore::exprs(ff)[,names(marker),drop=FALSE], 2, mean)
+    sdfi <- apply(flowCore::exprs(ff)[,names(marker),drop=FALSE], 2, sd)
+    cvfi <- sdfi/mfi
+    
+    statsl[[cp]] <- data.frame(mefi, mfi, sdfi, cvfi)
+}
+
+
+## analyzing cell population stats across multiple files ####
+# since we don't have multiple fcs files, we will generate data to emulate
+# different types of experiments.
+# typically, we analyze cell populations based on their cell count percent
+
+# our fcs file
+statsm
+
+# generate 100 fcs files (and their stats), (100 = 50 controls + 50 experiment)
+statsm_multiple <- data.frame()
+for (x in c(1:100)) {
+    statsm_ <- statsm
+    statsm_$file <- paste0("file_",x)
+    if (x <= 50) {
+        statsm_[["class"]] <- "control"
+    } else {
+        statsm_[["class"]] <- "experiment"
+    }
+    for (i in seq_len(nrow(statsm))) {
+        ov <- statsm[i, "cell_count"]
+        statsm_[i, "cell_count"] <- runif(1, min=ov*0.8, max=ov*1.2)
+        if (i==12 & x > 50) {
+            statsm_[i, "cell_count"] <- runif(1, min=ov*0.4, max=ov*0.6)
+        }
+    }
+    statsm_multiple <- rbind(statsm_multiple, statsm_)
+}
+statsm_multiple[["cell_percent"]] <- statsm_multiple[["cell_count"]] / total_count
+statsm_multiple[["cp"]] <- sapply(stringr::str_split(
+    statsm_multiple[["cell_population"]], "/"), function(x) {
+        if (length(x) < 2) {
+            return(paste0(x, collapse="/"))
+        }
+        return(paste0(x[(length(x)-1):length(x)], collapse="/"))
+    })
+cps <- statsm_multiple[["cp"]][c(1:length(cpops))]
+
+# plot boxplots
+gp <- ggplot2::ggplot(statsm_multiple, ggplot2::aes(
+    x=class, 
+    y=cell_percent, 
+    fill=class)) +
+    ggplot2::geom_boxplot() +
+    ggplot2::facet_wrap(cp~., scales="free_y") + 
+    ggplot2::theme(axis.text.x=ggplot2::element_text(
+        angle=90, vjust = 0.5, hjust=1)) # turn x axis text sideways
+gp
+
+# calculate p-values and log fold change between cell_percent of 
+# the same cell population across files of different classes
+p <- lfc <- c()
+controli <- statsm_multiple[["class"]]=="control"
+for (cp in cpops) {
+    cpi <- statsm_multiple[["cell_population"]] == cp
+    controlv <- statsm_multiple[controli & cpi,"cell_percent"]
+    experimentv <- statsm_multiple[!controli & cpi,"cell_percent"]
+    p[cp] <- t.test(controlv, experimentv)[["p.value"]]
+    lfc[cp] <- log(experimentv / controlv)
+}
+plfc <- data.frame(cell_population=cps, p_value=p, log_fold_change=lfc, row.names=cps)
+
+# volcano plot
+plot(plfc[["log_fold_change"]], -log(plfc[["p_value"]]), xlab="ln fold change", ylab="-ln p-value")
+
+# cell populations with lowest p-values
+head(plfc[order(plfc[["p_value"]]),])
+
+
