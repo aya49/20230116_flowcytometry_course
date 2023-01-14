@@ -3,6 +3,14 @@
 ## input: raw fcs file
 ## output: preprocessed fcs file
 
+# load packages
+library("flowCore")
+library("flowWorkspace") # also imports ggcyto and ggplot2 packages
+library("Rphenograph") # also imports igraph package
+library("FlowSOM")
+library("Rtsne")
+library("uwot")
+
 # directory to save results in
 res_dir <- "/home/maruko/projects/gating"
 

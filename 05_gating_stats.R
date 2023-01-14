@@ -3,6 +3,10 @@
 ## input: gated gating set
 ## output: stats and plots
 
+# load packages
+library("flowCore")
+library("flowWorkspace")
+
 # directory to save and obtain results in
 res_dir <- "/home/maruko/projects/gating"
 gateplot_dir <- paste0(res_dir, "/gs_plots")

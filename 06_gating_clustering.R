@@ -3,6 +3,12 @@
 ## input: raw fcs file
 ## output: gated flowworkspace
 
+# load packages
+library("flowCore")
+library("flowWorkspace") # also imports ggcyto and ggplot2 packages
+library("Rphenograph") # also imports igraph package
+library("FlowSOM")
+
 # directory to save results in
 res_dir <- "/home/maruko/projects/gating"
 

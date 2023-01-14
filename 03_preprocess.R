@@ -43,6 +43,6 @@ pQC <- PeacoQC::PeacoQC(fmr[["flowframe"]], channels=channels,
 fc <- pQC[["FinalFF"]] 
 
 # clean memory by removing variables
-rm("fmr")
+rm("fmr") # remove variable
 rm("pQC")
-gc()
+gc() # remove removed variables from memory
