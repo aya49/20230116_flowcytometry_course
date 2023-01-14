@@ -5,6 +5,7 @@
 
 # directory to save and obtain results in
 res_dir <- "/home/maruko/projects/gating"
+gateplot_dir <- paste0(res_dir, "/gs_plots")
 
 # load gating set
 gs <- flowWorkspace::load_gs(paste0(res_dir, "/gs"))
@@ -14,10 +15,13 @@ cpops <- flowWorkspace::gs_get_leaf_nodes(gs)
 ## plots ####
 
 # gating tree
+png(paste0(gateplot_dir, "/tree.png"))
 flowWorkspace::plot(gs)
+graphics.off()
 
 # all gatings
-ggcyto::autoplot(gs[[1]], bins=100)
+gag <- ggcyto::autoplot(gs[[1]], bins=100)
+ggplot2::ggsave(filename=paste0(gateplot_dir, "/all_gates.png"), plot=gag)
 
 # one gating
 ggcyto::autoplot(gs, cpops[1], bins=100)

@@ -1,3 +1,8 @@
+## example R code (intro to R)
+## author: alice yue
+## input: raw fcs file
+## output: preprocessed fcs file
+
 # Adding "#" at the beginning of this line makes this a comment!
 # Use comments to tell the reader what you are doing (documentation).
 # Comments are not run.
@@ -166,16 +171,16 @@ while (i <= 10) {
 
 ## functions, a set of pre-written code
 ## to see a description of the function, type "?" in front of it
-? print
-? length
-? matrix
-? dim
-? ncol
-? nrow
-? colnames
-? rownames
+?print
+?length
+?matrix
+?dim
+?ncol
+?nrow
+?colnames
+?rownames
 
-# why do we need functions? 
+# why do we need functions?
 # imagine we need to write a piece of code over and over again:
 p1 <- 2
 p2 <- 4
@@ -221,3 +226,112 @@ r1
 
 # if you write many functions, you can bundle these functions into a "package"
 # and share it with the community :)
+
+
+## practice problems ####
+
+# 1. write a function called "function1" that does the following when called:
+# <your function1 here>
+function1(2, 3, 6)
+# output printed (print()) to console:
+# [1] 2
+# [1] 6
+# [1] 18
+# [1] 54
+# [1] 162
+# [1] 486
+
+# 2. write a function called "function2" that, when given two vectors,
+#    returns TRUE if the two vectors are identicle, and FALSE otherwise:
+# <your function here>
+function2(c(1,2,3), c(2,3,4))
+# [1] FALSE
+function2(c(1,1,2), c(1,1))
+# [1] FALSE
+function2(c(2,3), c(2,3))
+# [1] TRUE
+
+# 3. write a function called "function3" that rbind() all the matrices
+#    that have the same number of columns in a list given by the user.
+#    return a list that contains all the rbind()-ed matrices.
+#    hint: try using the function unique(), (use ?unique to read about it!)
+# <your function here>
+list3 <- list(
+    matrix(0, nrow=2, ncol=4),
+    matrix(1, nrow=3, ncol=5),
+    matrix(2, nrow=4, ncol=4),
+    matrix(3, nrow=2, ncol=5),
+    matrix(4, nrow=5, ncol=3)
+)
+function3(list3)
+# returns a list with 3 elements:
+# 
+# [[1]]
+# [,1] [,2] [,3] [,4]
+# [1,]    0    0    0    0
+# [2,]    0    0    0    0
+# [3,]    2    2    2    2
+# [4,]    2    2    2    2
+# [5,]    2    2    2    2
+# [6,]    2    2    2    2
+# 
+# [[2]]
+# [,1] [,2] [,3] [,4] [,5]
+# [1,]    1    1    1    1    1
+# [2,]    1    1    1    1    1
+# [3,]    1    1    1    1    1
+# [4,]    3    3    3    3    3
+# [5,]    3    3    3    3    3
+# 
+# [[3]]
+# [,1] [,2] [,3]
+# [1,]    4    4    4
+# [2,]    4    4    4
+# [3,]    4    4    4
+# [4,]    4    4    4
+# [5,]    4    4    4
+
+
+## practice problem solutions ####
+
+# 1.
+function1 <- function(a, b, c) {
+    for (i in c(1:c)) {
+        print(a)
+        a <- a*b
+    }
+}
+
+# 2.
+function2 <- function(a, b) {
+    if (length(a) != length(b)) {
+        return(FALSE)
+    }
+    for (i in c(1:length(a))) {
+        if (a[i] != b[i]) {
+            return(FALSE)
+        }
+    }
+    return(TRUE)
+}
+
+# 3.
+function3 <- function(list3) {
+    ncol_n <- rep(0, length(list3))
+    for (l3i in c(1:length(list3))) {
+        ncol_n[l3i] <- ncol(list3[[l3i]])
+    }
+    ncol_u <- unique(ncol_n)
+    listr <- list()
+    for (nui in c(1:length(ncol_u))) {
+        l3d <- list3[ncol_n==ncol_u[nui]]
+        l3m <- l3d[[1]]
+        if (length(l3d) > 1) {
+            for (l3m_ in l3d[-1]) {
+                l3m <- rbind(l3m, l3m_)
+            }
+        }
+        listr[[nui]] <- l3m
+    }
+    return(listr)
+}

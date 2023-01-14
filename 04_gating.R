@@ -3,18 +3,36 @@
 ## input: raw fcs file
 ## output: gated flowworkspace
 
+# load packages
+library("flowCore")
+library("PeacoQC")
+library("flowWorkspace")
+library("flowDensity")
+
 # directory to save results in
 res_dir <- "/home/maruko/projects/gating"
 dir.create(res_dir)
 
+gateplot_dir <- paste0(res_dir, "/gs_plots")
+dir.create(gateplot_dir)
+
 # source utilities file
-source(paste0(res_dir, "/utils.R"))
+# https://github.com/aya49/20230116_flowcytometry_course/blob/main/utils.R
+source(paste0(res_dir, "/repo/utils.R"))
 
 # path to raw fcs file
-fcs_path <- "/home/maruko/projects/sangerP2.fcs"
+fcs_path <- paste0(res_dir, "/sangerP2.fcs")
 
 ## load fcs file
 f <- flowCore::read.FCS(fcs_path)
+
+# explore fcs file
+# flowCore::exprs(f) # raw cell x marker matrix
+head(flowCore::exprs(f))
+dim(flowCore::exprs(f))
+flowCore::markernames(f) # marker names (excluding morphology columns)
+f@parameters@data
+
 
 ## 1.1 compensate ####
 spillover <- flowCore::keyword(f)$SPILL
@@ -38,9 +56,6 @@ gc()
 
 
 ## 2 GATING: cell population identification based on a gating strategy ####
-
-# let's look at the file's markers
-f@parameters@data
 
 # initialize gating set (containing 1 file)
 fs <- flowCore::flowSet(list(f))
@@ -67,7 +82,7 @@ fd_singlets <- flowDensity::flowDensity(
     position=c(NA,TRUE), gates=c(NA, gate_singlets_low))
 
 # plot
-png(paste0(res_dir,"/01_all_singlets.png"))
+png(paste0(gateplot_dir, "/01_all_singlets.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
@@ -107,7 +122,7 @@ flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "live")
 
 # plot and save as png
-png(paste0(res_dir,"/02_singlets_live.png"))
+png(paste0(gateplot_dir, "/02_singlets_live.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
@@ -155,7 +170,7 @@ flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "lymphocytes")
 
 # plot
-png(paste0(res_dir,"/03_live_lymphocytes.png"))
+png(paste0(gateplot_dir, "/03_live_lymphocytes.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
@@ -215,7 +230,7 @@ flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "not_granulocytes")
 
 # plot
-png(paste0(res_dir,"/04_lymphocytes_granulocytes.png"))
+png(paste0(gateplot_dir, "/04_lymphocytes_granulocytes.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
@@ -272,7 +287,7 @@ flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "not_monocytes")
 
 # plot
-png(paste0(res_dir,"/05_notgranuloctyes_monocytes.png"))
+png(paste0(gateplot_dir, "/05_notgranuloctyes_monocytes.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
@@ -331,7 +346,7 @@ flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "not_eosinophils")
 
 # plot
-png(paste0(res_dir,"/06_notmonocytes_eosinophils.png"))
+png(paste0(gateplot_dir, "/06_notmonocytes_eosinophils.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
@@ -394,7 +409,7 @@ flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "not_eosinophils")
 
 # plot
-png(paste0(res_dir,"/07_noteosinophils_cd161p.png"))
+png(paste0(gateplot_dir, "/07_noteosinophils_cd161p.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
@@ -444,7 +459,7 @@ flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "NKT")
 
 # plot
-png(paste0(res_dir,"/08_CD161p_NKT.png"))
+png(paste0(gateplot_dir, "/08_CD161p_NKT.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
@@ -488,7 +503,7 @@ flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "NK/Ly6C AF700+CD11b BV510+")
 
 # plot
-png(paste0(res_dir,"/09_NK_immatureLy6C.png"))
+png(paste0(gateplot_dir, "/09_NK_immatureLy6C.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
@@ -528,7 +543,7 @@ flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "NKT/Ly6C AF700+CD11b BV510+")
 
 # plot
-png(paste0(res_dir,"/10_NKT_immatureLy6C.png"))
+png(paste0(gateplot_dir, "/10_NKT_immatureLy6C.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
@@ -590,7 +605,7 @@ flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "not_tcells")
 
 # plot
-png(paste0(res_dir,"/11_CD161n_tcells.png"))
+png(paste0(gateplot_dir, "/11_CD161n_tcells.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
@@ -660,7 +675,7 @@ flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "not_monocytes")
 
 # plot
-png(paste0(res_dir,"/12_nottcells_cDCbcells.png"))
+png(paste0(gateplot_dir, "/12_nottcells_cDCbcells.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
@@ -719,7 +734,7 @@ flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "cDC_cd11b-")
 
 # plot
-png(paste0(res_dir,"/13_cDC_CD11b.png"))
+png(paste0(gateplot_dir, "/13_cDC_CD11b.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
@@ -768,7 +783,7 @@ flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "b2bcells")
 
 # plot
-png(paste0(res_dir,"/14_bcells_b1b2.png"))
+png(paste0(gateplot_dir, "/14_bcells_b1b2.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
@@ -846,7 +861,7 @@ flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "prebcells")
 
 # plot
-png(paste0(res_dir,"/15_b2bcells_MZfolprebcells.png"))
+png(paste0(gateplot_dir, "/15_b2bcells_MZfolprebcells.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
@@ -869,6 +884,8 @@ graphics.off()
 flowWorkspace::save_gs(gs, path=paste0(res_dir, "/gs"))
 # gs <- flowWorkspace::load_gs(paste0(res_dir, "/gs"))
 
+# you can also save the gatingset as a flowjo workspace
+CytoML::gatingset_to_flowjo(gs, outFile=paste0(res_dir, "/gs.wsp"))
 
 ## BONUS: plots ####
 ## can you make one plotting function that creates the 

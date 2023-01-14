@@ -3,6 +3,10 @@
 ## input: raw fcs file
 ## output: preprocessed fcs file
 
+# load packages
+library("flowCore")
+library("PeacoQC")
+
 # path to fcs file (from: http://flowrepository.org/experiments/1844/download_ziped_files)
 fcs_path <- system.file("extdata", "111.fcs", package="PeacoQC")
 # fcs_path <- "/home/user/folder/file.fcs"
@@ -10,15 +14,23 @@ fcs_path <- system.file("extdata", "111.fcs", package="PeacoQC")
 ## load fcs file
 f <- flowCore::read.FCS(fcs_path)
 
-## 1.1 compensate
+# explore fcs file
+# flowCore::exprs(f) # raw cell x marker matrix
+head(flowCore::exprs(f))
+dim(flowCore::exprs(f))
+flowCore::markernames(f) # marker names (excluding morphology columns)
+f@parameters@data
+
+
+## 1.1 compensate ####
 spillover <- flowCore::keyword(f)$SPILL
 f <- flowCore::compensate(f, spillover=spillover)
 
-## 1.2 logicle transform
+## 1.2 logicle transform ####
 transformList <- flowCore::estimateLogicle(f, channels=colnames(spillover))
 f <- flowWorkspace::transform(f, transformList)
 
-## 1.3 cleaning; see res_dir for plot
+## 1.3 cleaning; see res_dir for plot ####
 ## parameter: Mean Absolute Deviation (MAD) distance (decrease = less strict)
 ## parameter: IsolationTree (IT) (decrease = more strict)
 channels <- c(1, 3, 5:14, 18, 21)
