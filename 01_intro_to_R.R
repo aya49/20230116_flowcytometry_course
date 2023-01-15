@@ -31,7 +31,7 @@ s2 <- "is"
 s3 <- paste0(s1, " ", s2, ": ", x3)
 
 # print a message to console
-print(x3)
+print(s3)
 
 
 # vectors, lists; indexing, length
