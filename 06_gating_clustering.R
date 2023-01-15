@@ -26,6 +26,13 @@ cpopcol <- c("#9E0142", "#D53E4F", "#F46D43", "#FDAE61", "#FEE08B", "#FFFFBF",
 
 ## 2 GATING: cell population identification based on a gating strategy ####
 
+## function to rotate 2D frame
+## input: 2D matrix and angle
+## output: rotated 2D matrix
+rotate_data <- function(data, theta=pi/2 - atan(lm(data.new[,1] ~ data.new[,2])$coefficients[2])) {
+    data %*% matrix(c(cos(theta),-sin(theta),sin(theta),cos(theta)),2,2,byrow=T)
+}
+
 ## 2.15 gating b2bcells > preB/MZB/folB ####
 # CD21: high > MZ > fol > pre > low
 ff <- flowWorkspace::cytoframe_to_flowFrame(
@@ -38,7 +45,8 @@ ff2D <- flowCore::exprs(ff)[,c("BV421-A","PE-A")]
 n_clust <- 3
 
 # try phenograph
-pc_ <- Rphenograph::Rphenograph(ff2D, 50)
+# TRY CHANGIN k (number of neighbours)
+pc_ <- Rphenograph::Rphenograph(ff2D)
 pc <- as.numeric(igraph::membership(pc_[[2]]))
 
 # consolidate phenograph clusters with k-medoid
@@ -81,6 +89,11 @@ ggcyto::autoplot(gs[[1]], "folbcells", bins=100)
 # gate <- flowCore::polygonGate(.gate=nchull)
 # node <- flowWorkspace::gs_pop_add(gs, gate, name="folbcells", parent="b2bcells")
 # flowWorkspace::recompute(gs)
+
+
+# TRY:
+#   <try applying clustering to other gates!>
+#   <try changing paramter values for clustering to see if you get different results!>
 
 
 ## save gating set! ####

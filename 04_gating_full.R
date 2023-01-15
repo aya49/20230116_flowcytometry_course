@@ -16,10 +16,6 @@ dir.create(res_dir)
 gateplot_dir <- paste0(res_dir, "/gs_plots")
 dir.create(gateplot_dir)
 
-# source utilities file
-# https://github.com/aya49/20230116_flowcytometry_course/blob/main/utils.R
-source(paste0(res_dir, "/repo/utils.R"))
-
 # path to raw fcs file
 fcs_path <- paste0(res_dir, "/sangerP2.fcs")
 
@@ -57,6 +53,13 @@ gc()
 
 ## 2 GATING: cell population identification based on a gating strategy ####
 
+## function to rotate 2D frame
+## input: 2D matrix and angle
+## output: rotated 2D matrix
+rotate_data <- function(data, theta=pi/2 - atan(lm(data.new[,1] ~ data.new[,2])$coefficients[2])) {
+    data %*% matrix(c(cos(theta),-sin(theta),sin(theta),cos(theta)),2,2,byrow=T)
+}
+
 # initialize gating set (containing 1 file)
 fs <- flowCore::flowSet(list(f))
 # fs <- flowCore::flowSet(list(f1, f2, f3)) # can add more files if needed
@@ -87,7 +90,8 @@ layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
 d <- density(flowCore::exprs(f)[,"FSC-A"])
-plot(d, ylab="", axes=FALSE, main="all events (cells, particles, etc.) > singlets")
+plot(d, ylab="", axes=FALSE, 
+     main="all events (cells, particles, etc.) > singlets")
 
 par(mar=c(5,0,1,3))
 d <- density(flowCore::exprs(f)[,"SSC-W"])
@@ -104,8 +108,11 @@ graphics.off()
 ## 2.2 gating singlets > live ####
 
 # get threshold gates
-temp <- flowDensity::flowDensity(fd_singlets, channels=c("APC-Cy7-A", "SSC-A"), position=c(NA,F), gates=c(NA,50000))
-gate_live <- flowDensity::deGate(flowDensity::getflowFrame(temp), channel="APC-Cy7-A")
+temp <- flowDensity::flowDensity(
+    fd_singlets, channels=c("APC-Cy7-A", "SSC-A"), 
+    position=c(NA,F), gates=c(NA,50000))
+gate_live <- flowDensity::deGate(
+    flowDensity::getflowFrame(temp), channel="APC-Cy7-A")
 
 # gate
 fd_live <- flowDensity::flowDensity(
@@ -126,12 +133,14 @@ png(paste0(gateplot_dir, "/02_singlets_live.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
-d <- density(flowCore::exprs(flowDensity::getflowFrame(fd_singlets))[,"APC-Cy7-A"])
+d <- density(flowCore::exprs(
+    flowDensity::getflowFrame(fd_singlets))[,"APC-Cy7-A"])
 plot(d, ylab="", axes=FALSE, main="singlets > live")
 abline(v=gate_live, lty="dashed", col="red")
 
 par(mar=c(5,0,1,3))
-d <- density(flowCore::exprs(flowDensity::getflowFrame(fd_singlets))[,"SSC-A"])
+d <- density(flowCore::exprs(
+    flowDensity::getflowFrame(fd_singlets))[,"SSC-A"])
 plot(d$y, d$x, type="l", xlab="", axes=FALSE, main="")
 
 par(mar=c(5,5,1,1))
@@ -146,7 +155,8 @@ gc()
 
 ## 2.3 gating live > lymphocytes ####
 ff <- flowWorkspace::cytoframe_to_flowFrame(
-    as(flowWorkspace::gs_pop_get_data(gs, "live"), Class="list")[[1]] )
+    as(flowWorkspace::gs_pop_get_data(
+        gs, "live"), Class="list")[[1]] )
 
 # get upper limit gates
 gate_ssca_high <- flowDensity::deGate(
@@ -185,13 +195,15 @@ abline(h=c(0, gate_ssca_high), lty="dashed", col="red")
 
 par(mar=c(5,5,1,1))
 flowDensity::plotDens(ff, channels=c("FSC-A", "SSC-A"), main="")
-abline(v=c(gate_fsca, gate_fsca_high), h=c(0, gate_ssca_high), lty="dashed", col="red")
+abline(v=c(gate_fsca, gate_fsca_high), 
+       h=c(0, gate_ssca_high), lty="dashed", col="red")
 graphics.off()
 
 
 ## 2.4 gating lymphocytes > not/granulocytes ####
 ff <- flowWorkspace::cytoframe_to_flowFrame(
-    as(flowWorkspace::gs_pop_get_data(gs, "lymphocytes"), Class="list")[[1]] )
+    as(flowWorkspace::gs_pop_get_data(
+        gs, "lymphocytes"), Class="list")[[1]] )
 
 # get upper limit gates
 gate_cd11b_high <- flowDensity::deGate(
@@ -224,7 +236,8 @@ fd_notgran <- flowDensity::notSubFrame(
     ff, channels=c("APC-A", "BV510-A"), 
     position="logical", gates="missing", fd_gran@filter)
 gate <- flowCore::polygonGate(.gate=fd_notgran@filter)
-node <- flowWorkspace::gs_pop_add(gs, gate, name="not_granulocytes", parent="lymphocytes")
+node <- flowWorkspace::gs_pop_add(
+    gs, gate, name="not_granulocytes", parent="lymphocytes")
 flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "granulocytes")
 # flowWorkspace::gs_pop_remove(gs, "not_granulocytes")
@@ -234,7 +247,8 @@ png(paste0(gateplot_dir, "/04_lymphocytes_granulocytes.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
-d <- density(flowCore::exprs(flowDensity::getflowFrame(temp))[,"APC-A"], na.rm=TRUE)
+d <- density(flowCore::exprs(
+    flowDensity::getflowFrame(temp))[,"APC-A"], na.rm=TRUE)
 plot(d, ylab="", axes=FALSE, main="lymphocytes > not/granuloctyes",
      xlim=range(flowCore::exprs(ff)[,"APC-A"], na.rm=TRUE))
 abline(v=gate_ly6c, lty="dashed", col="red")
@@ -252,7 +266,8 @@ graphics.off()
 
 ## 2.5 gating not granulocytes > not/monocytes ####
 ff <- flowWorkspace::cytoframe_to_flowFrame(
-    as(flowWorkspace::gs_pop_get_data(gs, "not_granulocytes"), Class="list")[[1]] )
+    as(flowWorkspace::gs_pop_get_data(
+        gs, "not_granulocytes"), Class="list")[[1]] )
 
 # get upper limit gates
 gate_cd5_high <- flowDensity::deGate(
@@ -281,7 +296,8 @@ fd_notmono <- flowDensity::notSubFrame(
     ff, channels=c("Alexa Fluor 700-A", "BV510-A"), 
     position="logical", gates="missing", fd_mono@filter)
 gate <- flowCore::polygonGate(.gate=fd_notmono@filter)
-node <- flowWorkspace::gs_pop_add(gs, gate, name="not_monocytes", parent="not_granulocytes")
+node <- flowWorkspace::gs_pop_add(
+    gs, gate, name="not_monocytes", parent="not_granulocytes")
 flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "monocytes")
 # flowWorkspace::gs_pop_remove(gs, "not_monocytes")
@@ -291,7 +307,8 @@ png(paste0(gateplot_dir, "/05_notgranuloctyes_monocytes.png"))
 layout(matrix(c(1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 1,3,3,3,3, 0,2,2,2,2), nrow=5))
 
 par(mar=c(0,5,3,1))
-d <- density(flowCore::exprs(flowDensity::getflowFrame(temp))[,"Alexa Fluor 700-A"], na.rm=TRUE)
+d <- density(flowCore::exprs(
+    flowDensity::getflowFrame(temp))[,"Alexa Fluor 700-A"], na.rm=TRUE)
 plot(d, ylab="", axes=FALSE, main="not granulocytes > not/monocytes",
      xlim=range(flowCore::exprs(ff)[,"Alexa Fluor 700-A"], na.rm=TRUE))
 abline(v=gate_cd5, lty="dashed", col="red")
@@ -309,7 +326,8 @@ graphics.off()
 
 ## 2.6 gating not monocytes > not/eosoniphil ####
 ff <- flowWorkspace::cytoframe_to_flowFrame(
-    as(flowWorkspace::gs_pop_get_data(gs, "not_monocytes"), Class="list")[[1]] )
+    as(flowWorkspace::gs_pop_get_data(
+        gs, "not_monocytes"), Class="list")[[1]] )
 
 # get upper limit gates
 gate_ssch_high <- flowDensity::deGate(
@@ -340,7 +358,8 @@ fd_noteosi <- flowDensity::notSubFrame(
     ff, channels=c("BV510-A", "SSC-H"), 
     position="logical", gates="missing", fd_eosi@filter)
 gate <- flowCore::polygonGate(.gate=fd_noteosi@filter)
-node <- flowWorkspace::gs_pop_add(gs, gate, name="not_eosinophils", parent="not_monocytes")
+node <- flowWorkspace::gs_pop_add(
+    gs, gate, name="not_eosinophils", parent="not_monocytes")
 flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "eosinophils")
 # flowWorkspace::gs_pop_remove(gs, "not_eosinophils")
@@ -367,7 +386,8 @@ graphics.off()
 
 ## 2.7 gating not eosoniphil > CD11b+/- ####
 ff <- flowWorkspace::cytoframe_to_flowFrame(
-    as(flowWorkspace::gs_pop_get_data(gs, "not_eosinophils"), Class="list")[[1]] )
+    as(flowWorkspace::gs_pop_get_data(
+        gs, "not_eosinophils"), Class="list")[[1]] )
 
 # get upper/lower limit gates
 gate_cd161_high <- flowDensity::deGate(
@@ -385,8 +405,10 @@ gate_cd19 <- flowDensity::deGate(ff, channel="PE-Cy7-A")
 temp <- flowDensity::flowDensity(
     ff, channels=c("BV650-A", "PE-Cy7-A"), 
     position=c(TRUE,FALSE), gates=c(gate_cd161, gate_cd19))
-gate_cd161 <- flowDensity::deGate(flowDensity::getflowFrame(temp), channel="BV650-A")
-gate_cd19 <- flowDensity::deGate(flowDensity::getflowFrame(temp), channel="PE-Cy7-A")
+gate_cd161 <- flowDensity::deGate(
+    flowDensity::getflowFrame(temp), channel="BV650-A")
+gate_cd19 <- flowDensity::deGate(
+    flowDensity::getflowFrame(temp), channel="PE-Cy7-A")
 
 # register gates into gs
 gate <- flowCore::rectangleGate(
@@ -403,7 +425,8 @@ fd_notcd161 <- flowDensity::notSubFrame(
     ff, channels=c("BV650-A", "PE-Cy7-A"), 
     position="logical", gates="missing", fd_cd161@filter)
 gate <- flowCore::polygonGate(.gate=fd_notcd161@filter)
-node <- flowWorkspace::gs_pop_add(gs, gate, name="CD161-", parent="not_eosinophils")
+node <- flowWorkspace::gs_pop_add(
+    gs, gate, name="CD161-", parent="not_eosinophils")
 flowWorkspace::recompute(gs)
 # flowWorkspace::gs_pop_remove(gs, "eosinophil")
 # flowWorkspace::gs_pop_remove(gs, "not_eosinophils")
@@ -431,7 +454,8 @@ graphics.off()
 ## 2.8 gating CD161+ > NK/T ####
 # NK: natural killer
 ff <- flowWorkspace::cytoframe_to_flowFrame(
-    as(flowWorkspace::gs_pop_get_data(gs, "CD161+"), Class="list")[[1]] )
+    as(flowWorkspace::gs_pop_get_data(
+        gs, "CD161+"), Class="list")[[1]] )
 
 # rotate cells
 ffs <- ff
@@ -445,13 +469,15 @@ gate_cd5_slant <- flowDensity::deGate(ffs, channel="APC-A")
 nkTF <- flowCore::exprs(ffs)[,"APC-A"] <= gate_cd5_slant
 
 nkchull <- chull(flowCore::exprs(ff)[nkTF, c("APC-A","BV650-A"), drop=FALSE])
-nkfilter <- flowCore::exprs(ff)[which(nkTF)[c(nkchull, nkchull[1])], c("APC-A","BV650-A"), drop=FALSE]
+nkfilter <- flowCore::exprs(ff)[
+    which(nkTF)[c(nkchull, nkchull[1])], c("APC-A","BV650-A"), drop=FALSE]
 gate <- flowCore::polygonGate(.gate=nkfilter)
 node <- flowWorkspace::gs_pop_add(gs, gate, name="NK", parent="CD161+")
 flowWorkspace::recompute(gs)
 
 nktchull <- chull(flowCore::exprs(ff)[!nkTF, c("APC-A","BV650-A"), drop=FALSE])
-nktfilter <- flowCore::exprs(ff)[which(!nkTF)[c(nktchull, nktchull[1])], c("APC-A","BV650-A"), drop=FALSE]
+nktfilter <- flowCore::exprs(ff)[
+    which(!nkTF)[c(nktchull, nktchull[1])], c("APC-A","BV650-A"), drop=FALSE]
 gate <- flowCore::polygonGate(.gate=nktfilter)
 node <- flowWorkspace::gs_pop_add(gs, gate, name="NKT", parent="CD161+")
 flowWorkspace::recompute(gs)
@@ -478,7 +504,8 @@ graphics.off()
 
 ## 2.9 gating NK > NK im/mature Ly6C+/- ####
 ff <- flowWorkspace::cytoframe_to_flowFrame(
-    as(flowWorkspace::gs_pop_get_data(gs, "NK"), Class="list")[[1]] )
+    as(flowWorkspace::gs_pop_get_data(
+        gs, "NK"), Class="list")[[1]] )
 
 # get loose threshold gates
 gate_ly6c <- flowDensity::deGate(ff, channel="Alexa Fluor 700-A") 
@@ -488,7 +515,8 @@ gate_cd11b <- flowDensity::deGate(ff, channel="BV510-A")
 temp <- flowDensity::flowDensity(
     ff, channels=c("Alexa Fluor 700-A", "BV510-A"), 
     position=c(FALSE,NA), gates=c(gate_ly6c, NA))
-gate_ly6c <- flowDensity::deGate(flowDensity::getflowFrame(temp), channel="Alexa Fluor 700-A")
+gate_ly6c <- flowDensity::deGate(
+    flowDensity::getflowFrame(temp), channel="Alexa Fluor 700-A")
 
 # register gates into gs
 gate <- flowCore::quadGate(
@@ -524,7 +552,8 @@ graphics.off()
 
 ## 2.10 gating NKT > NKT im/mature Ly6C+/- ####
 ff <- flowWorkspace::cytoframe_to_flowFrame(
-    as(flowWorkspace::gs_pop_get_data(gs, "NKT"), Class="list")[[1]] )
+    as(flowWorkspace::gs_pop_get_data(
+        gs, "NKT"), Class="list")[[1]] )
 
 # get threshold gates
 gate_ly6c <- flowDensity::deGate(ff, channel="Alexa Fluor 700-A") 
@@ -565,7 +594,8 @@ graphics.off()
 
 ## 2.11 gating CD161- > not/tcells ####
 ff <- flowWorkspace::cytoframe_to_flowFrame(
-    as(flowWorkspace::gs_pop_get_data(gs, "CD161-"), Class="list")[[1]] )
+    as(flowWorkspace::gs_pop_get_data(
+        gs, "CD161-"), Class="list")[[1]] )
 
 # rotate cells
 ffs <- ff
@@ -628,7 +658,8 @@ graphics.off()
 ## 2.12 gating not tcells > cDC/bcell ####
 #cDC: conventional dendritic cells
 ff <- flowWorkspace::cytoframe_to_flowFrame(
-    as(flowWorkspace::gs_pop_get_data(gs, "not_tcells"), Class="list")[[1]] )
+    as(flowWorkspace::gs_pop_get_data(
+        gs, "not_tcells"), Class="list")[[1]] )
 
 # rotate cells
 ffs <- ff
@@ -660,7 +691,8 @@ gate_cd11c <- flowDensity::deGate(
 bTF <- flowCore::exprs(ffs)[,"PE-Cy7-A"] >= gate_cd19_slant &
     flowCore::exprs(ff)[,"PE-Cy7-A"] >= gate_cd19
 bchull <- chull(flowCore::exprs(ff)[bTF, c("PE-Cy7-A","BV786-A"), drop=FALSE])
-bfilter <- flowCore::exprs(ff)[which(bTF)[c(bchull, bchull[1])], c("PE-Cy7-A","BV786-A"), drop=FALSE]
+bfilter <- flowCore::exprs(ff)[
+    which(bTF)[c(bchull, bchull[1])], c("PE-Cy7-A","BV786-A"), drop=FALSE]
 gate <- flowCore::polygonGate(.gate=bfilter)
 node <- flowWorkspace::gs_pop_add(gs, gate, name="bcells", parent="not_tcells")
 flowWorkspace::recompute(gs)
@@ -697,7 +729,8 @@ graphics.off()
 
 ## 2.13 gating cDC > cDC CD11b+/- ####
 ff <- flowWorkspace::cytoframe_to_flowFrame(
-    as(flowWorkspace::gs_pop_get_data(gs, "cDC"), Class="list")[[1]] )
+    as(flowWorkspace::gs_pop_get_data(
+        gs, "cDC"), Class="list")[[1]] )
 
 # get upper/lower limit gates
 gate_cd11b_high <- flowDensity::deGate(
@@ -749,13 +782,15 @@ abline(h=gate_mhcii_low, lty="dashed", col="red")
 
 par(mar=c(5,5,1,1))
 flowDensity::plotDens(ff, channels=c("BV510-A", "FITC-A"), main="")
-abline(v=c(gate_cd11b_low, gate_cd11b), h=gate_mhcii_low, lty="dashed", col="red")
+abline(v=c(gate_cd11b_low, gate_cd11b), 
+       h=gate_mhcii_low, lty="dashed", col="red")
 graphics.off()
 
 
 ## 2.14 gating bcells > b1/b2 ####
 ff <- flowWorkspace::cytoframe_to_flowFrame(
-    as(flowWorkspace::gs_pop_get_data(gs, "bcells"), Class="list")[[1]] )
+    as(flowWorkspace::gs_pop_get_data(
+        gs, "bcells"), Class="list")[[1]] )
 
 # rotate cells
 ffs <- ff
@@ -763,19 +798,23 @@ flowCore::exprs(ffs)[,c("APC-A","PE-A")] <-
     rotate_data(flowCore::exprs(ff)[,c("APC-A","PE-A")], theta=-pi/12)
 
 # get threshold gates
-gate_cd5 <- flowDensity::deGate(ffs, channel="APC-A", use.upper=TRUE, upper=TRUE)
+gate_cd5 <- flowDensity::deGate(
+    ffs, channel="APC-A", 
+    use.upper=TRUE, upper=TRUE)
 
 # register gates into gs
 b1TF <- flowCore::exprs(ffs)[,"APC-A"] >= gate_cd5
 
 b1chull <- chull(flowCore::exprs(ff)[b1TF, c("APC-A","PE-A"), drop=FALSE])
-b1filter <- flowCore::exprs(ff)[which(b1TF)[c(b1chull, b1chull[1])], c("APC-A","PE-A"), drop=FALSE]
+b1filter <- flowCore::exprs(ff)[
+    which(b1TF)[c(b1chull, b1chull[1])], c("APC-A","PE-A"), drop=FALSE]
 gate <- flowCore::polygonGate(.gate=b1filter)
 node <- flowWorkspace::gs_pop_add(gs, gate, name="b1bcells", parent="bcells")
 flowWorkspace::recompute(gs)
 
 b2chull <- chull(flowCore::exprs(ff)[!b1TF, c("APC-A","PE-A"), drop=FALSE])
-b2filter <- flowCore::exprs(ff)[which(!b1TF)[c(b2chull, b2chull[1])], c("APC-A","PE-A"), drop=FALSE]
+b2filter <- flowCore::exprs(ff)[
+    which(!b1TF)[c(b2chull, b2chull[1])], c("APC-A","PE-A"), drop=FALSE]
 gate <- flowCore::polygonGate(.gate=b2filter)
 node <- flowWorkspace::gs_pop_add(gs, gate, name="b2bcells", parent="bcells")
 flowWorkspace::recompute(gs)
@@ -803,10 +842,13 @@ graphics.off()
 ## 2.15 gating b2bcells > preB/MZB/folB ####
 # CD21: high > MZ (marginal zone) > fol (follicular) > pre > low
 ff <- flowWorkspace::cytoframe_to_flowFrame(
-    as(flowWorkspace::gs_pop_get_data(gs, "b2bcells"), Class="list")[[1]] )
+    as(flowWorkspace::gs_pop_get_data(
+        gs, "b2bcells"), Class="list")[[1]] )
 
 # get threshold gates (frame)
-gate_cd23_low <- flowDensity::deGate(ff, channel="BV421-A", use.upper=TRUE, upper=FALSE)
+gate_cd23_low <- flowDensity::deGate(
+    ff, channel="BV421-A", 
+    use.upper=TRUE, upper=FALSE)
 allTF <- flowCore::exprs(ff)[,"BV421-A"] >= gate_cd23_low
 flowCore::exprs(ff) <- flowCore::exprs(ff)[allTF,, drop=FALSE]
 
@@ -820,7 +862,8 @@ gate_cd21_slanth_temp <- flowDensity::deGate(ffs, channel="PE-A")
 ffs_ <- ffs
 botTF <- flowCore::exprs(ffs)[,"PE-A"] >= gate_cd21_slanth_temp
 flowCore::exprs(ffs_) <- flowCore::exprs(ffs)[botTF,c("BV421-A","PE-A")]
-gate_cd21_slanth <- flowDensity::deGate(ffs_, channel="PE-A", use.upper=TRUE, upper=FALSE)
+gate_cd21_slanth <- flowDensity::deGate(
+    ffs_, channel="PE-A", use.upper=TRUE, upper=FALSE)
 
 topTF <- flowCore::exprs(ffs)[,"PE-A"] >= gate_cd21_slanth
 
@@ -840,19 +883,22 @@ folbTF <- !mzbTF & topTF
 prebTF <- !mzbTF & !topTF & flowCore::exprs(ffs)[,"BV421-A"] <= gate_cd23_slantv
 
 mzbchull <- chull(flowCore::exprs(ff)[mzbTF, c("BV421-A","PE-A"), drop=FALSE])
-mzbfilter <- flowCore::exprs(ff)[which(mzbTF)[c(mzbchull, mzbchull[1])], c("BV421-A","PE-A"), drop=FALSE]
+mzbfilter <- flowCore::exprs(ff)[
+    which(mzbTF)[c(mzbchull, mzbchull[1])], c("BV421-A","PE-A"), drop=FALSE]
 gate <- flowCore::polygonGate(.gate=mzbfilter)
 node <- flowWorkspace::gs_pop_add(gs, gate, name="MZbcells", parent="b2bcells")
 flowWorkspace::recompute(gs)
 
 folbchull <- chull(flowCore::exprs(ff)[folbTF, c("BV421-A","PE-A"), drop=FALSE])
-folbfilter <- flowCore::exprs(ff)[which(folbTF)[c(folbchull, folbchull[1])], c("BV421-A","PE-A"), drop=FALSE]
+folbfilter <- flowCore::exprs(ff)[
+    which(folbTF)[c(folbchull, folbchull[1])], c("BV421-A","PE-A"), drop=FALSE]
 gate <- flowCore::polygonGate(.gate=folbfilter)
 node <- flowWorkspace::gs_pop_add(gs, gate, name="folbcells", parent="b2bcells")
 flowWorkspace::recompute(gs)
 
 prebchull <- chull(flowCore::exprs(ff)[prebTF, c("BV421-A","PE-A"), drop=FALSE])
-prebfilter <- flowCore::exprs(ff)[which(prebTF)[c(prebchull, prebchull[1])], c("BV421-A","PE-A"), drop=FALSE]
+prebfilter <- flowCore::exprs(ff)[
+    which(prebTF)[c(prebchull, prebchull[1])], c("BV421-A","PE-A"), drop=FALSE]
 gate <- flowCore::polygonGate(.gate=prebfilter)
 node <- flowWorkspace::gs_pop_add(gs, gate, name="prebcells", parent="b2bcells")
 flowWorkspace::recompute(gs)
@@ -886,7 +932,3 @@ flowWorkspace::save_gs(gs, path=paste0(res_dir, "/gs"))
 
 # you can also save the gatingset as a flowjo workspace
 CytoML::gatingset_to_flowjo(gs, outFile=paste0(res_dir, "/gs.wsp"))
-
-## BONUS: plots ####
-## can you make one plotting function that creates the 
-## scatterplots/density plots to replace all previous plotting code?

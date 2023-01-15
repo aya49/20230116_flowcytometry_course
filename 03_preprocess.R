@@ -7,11 +7,11 @@
 library("flowCore")
 library("PeacoQC")
 
-# path to fcs file (from: http://flowrepository.org/experiments/1844/download_ziped_files)
+# path to fcs file 
 fcs_path <- system.file("extdata", "111.fcs", package="PeacoQC")
 # fcs_path <- "/home/user/folder/file.fcs"
 
-## load fcs file
+# load fcs file
 f <- flowCore::read.FCS(fcs_path)
 
 # explore fcs file
@@ -39,6 +39,7 @@ fmr <- PeacoQC::RemoveMargins(f, channels=channels, output="full")
 pQC <- PeacoQC::PeacoQC(fmr[["flowframe"]], channels=channels,
                         plot=TRUE, save_fcs=FALSE, report=FALSE,
                         output_directory=res_dir)
+
 # final preprocessed fcs!
 fc <- pQC[["FinalFF"]] 
 

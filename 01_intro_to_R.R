@@ -102,7 +102,8 @@ newm <- rbind(xm, nm) # row bind two matrices together; column bind with cbind()
 newm
 dim(newm)
 
-# data.frame() is like matrix but each column can contain different types of variables
+# data.frame() is like matrix but each column 
+# can contain different types of variables
 d <- data.frame(name=c("bob", "mike", "emily"), age=c(10, 12, 13))
 d
 dim(d)
@@ -213,7 +214,8 @@ print(p3)
 p3 <- myfunction(6, 7)
 print(p3)
 
-# functions are encapsulated: everything that happens in a function stays in the function.
+# functions are encapsulated: 
+# everything that happens in a function stays in the function.
 p1 <- 3
 p2 <- 5
 p3 <- 7
@@ -228,7 +230,7 @@ r1
 # and share it with the community :)
 
 
-## practice problems ####
+## TRY: practice problems ####
 
 # 1. write a function called "function1" that does the following when called:
 # <your function1 here>

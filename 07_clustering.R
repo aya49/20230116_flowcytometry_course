@@ -37,7 +37,8 @@ cpops <- flowWorkspace::gs_get_leaf_nodes(gs)
 cpops_matrix <- matrix(FALSE, ncol=length(cpops), nrow=sum(starting_inds))
 colnames(cpops_matrix) <- cpops
 for (cpop in cpops) {
-    cpops_matrix[,cpop] <- flowWorkspace::gh_pop_get_indices(gs, cpop)[starting_inds]
+    cpops_matrix[,cpop] <- 
+        flowWorkspace::gh_pop_get_indices(gs, cpop)[starting_inds]
 }
 
 
@@ -46,7 +47,8 @@ n_clust <- 30
 n_sample <- 5000
 
 # phenograph
-pc_ <- Rphenograph::Rphenograph(flowCore::exprs(ff)[, names(markers)], 50)
+# TRY CHANGIN k (number of neighbours)
+pc_ <- Rphenograph::Rphenograph(flowCore::exprs(ff)[, names(markers)], k=50) 
 pc <- igraph::membership(pc_[[2]])
 
 # flowsom
@@ -81,7 +83,10 @@ ffs <- flowCore::exprs(ff)[ffsample, names(markers)]
 
 ## reduce dimensionality of data to 2D
 t2 <- Rtsne::Rtsne(ffs)$Y
-u2 <- uwot::umap(ffs)
+# TRY adjusting "n_neighbors" and 
+#               "metric" for distance metric used 
+#               i.e. any of: "cosine", "manhattan", "hamming", "correlation"
+u2 <- uwot::umap(ffs, n_neighbors=15, metric="euclidean")
 colnames(t2) <- colnames(u2) <- c("x", "y")
 
 

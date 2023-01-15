@@ -4,10 +4,9 @@ This course is a 4 day x 4 hour course taught by Alice Yue, hosted on Physalia: 
 
 ## Course outline
 
-**Course**: Flow cytometry analysis with R/Bioconductor
-**Date and time**: 2023-01-16 - 2022-01-19 @ 16:00-18:00 CEST (7:00-11:00 PST)
-**Instructor**: Alice Yue (Metafora-biosystems, Paris France, Vancouver Canada)
-**Participants**: tbd
+- **Course**: Flow cytometry analysis with R/Bioconductor
+- **Date and time**: 2023-01-16 - 2022-01-19 @ 16:00-18:00 CEST (7:00-11:00 PST)
+- **Instructor**: Alice Yue (Metafora-biosystems, Paris France, Vancouver Canada)
 
 **Level**: Beginner-Intermediate
 
