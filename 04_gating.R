@@ -543,6 +543,30 @@ flowWorkspace::save_gs(gs, path=paste0(res_dir, "/gs"))
 # you can also save the gatingset as a flowjo workspace
 CytoML::gatingset_to_flowjo(gs, outFile=paste0(res_dir, "/gs.wsp"))
 
-## TRY BONUS: plots ####
-## can you make one plotting function that creates the 
-## scatterplots/density plots to replace all previous plotting code?
+
+
+## TRY: practice problems ####
+
+# 1. complete this gating script according to the given gating strategy. 
+#    Search through the script for "# <your"... for where you willl need to 
+#    fill the blanks. Read through the other gatings for ideas and guidance.
+
+# 2. the sangerP2.fcs file was downloaded from 
+#    http://flowrepository.org/id/FR-FCM-ZYPK
+#    go to this link, click "download" and select any one random .fcs file to 
+#    download. all files there follow the same gating strategy.
+#    change the path to the .fcs file to your new file.
+#    
+# question: does your existing script work at gating your new file?
+# question: can you modify your script such that it works on both files?
+# note: if your file looks obnoxiously different from our file, it might be an
+#       outlier, in that case, download another one :P!
+
+# 3. can you make one plotting function that creates the 
+# scatterplots/density plots to replace all previous plotting code?
+
+# 4. if you want more practice, try creating a gating script for any of the 
+#    files in http://flowrepository.org/public_experiment_representations/1146
+#    used in the article "An immune clock of pregnancy" (doi/10.1126/sciimmunol.aan2946),
+#    whose gating strategy can be found on page 5 of its supplementary material:
+#    https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5701281/bin/STM-02-eaan2946-s001.pdf

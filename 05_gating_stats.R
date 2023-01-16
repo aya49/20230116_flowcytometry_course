@@ -15,6 +15,18 @@ gateplot_dir <- paste0(res_dir, "/gs_plots")
 gs <- flowWorkspace::load_gs(paste0(res_dir, "/gs"))
 cpops <- flowWorkspace::gs_get_leaf_nodes(gs)
 
+# function to get parent cell population
+parent_cpop <- function(child_cpop) {
+    a <- strsplit(child_cpop,"/")[[1]]
+    return( paste0(a[-length(a)], collapse="/") )
+}
+
+# function to get leaf cell population
+leaf_cpop <- function(full_cpop) {
+    a <- strsplit(full_cpop,"/")[[1]]
+    return( a[length(a)] )
+}
+
 
 ## plots ####
 
@@ -38,8 +50,11 @@ statsm <- data.frame(
     cell_population=cpops,
     cell_count=sapply(cpops, function(cp) 
         flowWorkspace::gh_pop_get_count(gs, cp)) )
-total_count <- flowWorkspace::gh_pop_get_count(gs, "root")
+total_count <- flowWorkspace::gh_pop_get_count(gs, "root") # root = all cells
 statsm[["cell_percent"]] <- statsm$cell_count / total_count
+
+# our fcs file
+statsm
 
 # get the median/mean/SD/CV FI for each cell population and marker
 statsl <- list()
@@ -55,14 +70,28 @@ for (cp in cpops) {
     statsl[[cp]] <- data.frame(mefi, mfi, sdfi, cvfi)
 }
 
+# let's look at the mfi's for each cell population across each marker :3
+mfis <- data.frame()
+for (cpop in cpops) {
+    parent <- leaf_cpop(parent_cpop(cpop))
+    mfis <- rbind(mfis, data.frame(
+        parent=parent,
+        cpop=paste0(parent, "/", leaf_cpop(cpop)), 
+        marker=flowCore::markernames(ff), 
+        mfi=statsl[[cpop]][["mfi"]]))
+}
+cpmfi <- ggplot2::ggplot(mfis, ggplot2::aes(x=marker, y=mfi, colour=parent, group=cpop)) +
+    ggplot2::geom_point() +
+    ggplot2::geom_line() +
+    ggplot2::facet_wrap(cpop~., scales="free_y") +
+    ggplot2::theme(axis.text.x=ggplot2::element_text(
+        angle=90, vjust = 0.5, hjust=1)) # turn x axis text sideways
+cpmfi
 
 ## analyzing cell population stats across multiple files ####
 # since we don't have multiple fcs files, we will generate data to emulate
 # different types of experiments.
 # typically, we analyze cell populations based on their cell count percent
-
-# our fcs file
-statsm
 
 # generate 100 fcs files (and their stats), (100 = 50 controls + 50 experiment)
 statsm_multiple <- data.frame()
@@ -124,3 +153,30 @@ plot(plfc[["log_fold_change"]], -log(plfc[["p_value"]]), xlab="ln fold change", 
 head(plfc[order(plfc[["p_value"]]),])
 
 
+## TRY: practice problem ####
+
+# 1. instead of comparing the cell count or the cell percentage, it is also
+#    common to compare the "mfi" or the mean fluorescent intensity for each
+#    marker across samples for the same cell population.
+#    
+# your task: for any one marker and any one cell population of your choosing, 
+#            generate another table, like statsm_multiple, where
+#            you simulate mfi values for 100 samples, 
+
+# 2. another common approach to comparing cell populations is to get the 
+#    percentage of cells in a cell population NOT over the total number of 
+#    cells but over the number of cells in its PARENT cell population.
+#    For example, cell population a/b/c has 10 cells, its
+#    parent cell poulation a/b has 20 cells (and a has, let's say 30 cells), 
+#    then a/b/c's percentage would be 10/20 = 0.5.
+#    
+# your task: replace the "cell_percent" column in statsm_multiple with the 
+#            above said percentage for each cell poulation across all samples.
+#            calculate p-values and log fold change again to see if there are
+#            any changes to the results! (there shouldn't be, most of the time)
+# 
+# hint: use the parent_cpop function to identify parent cell populations.
+parent_cpop("/live/lymphocytes/not_granulocytes/not_monocytes")
+
+# <your code here>
+# e.g. statsm_multiple[["cell_percent"]] <- ...
