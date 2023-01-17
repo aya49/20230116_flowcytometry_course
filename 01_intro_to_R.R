@@ -1,7 +1,6 @@
 ## example R code (intro to R)
 ## author: alice yue
-## input: raw fcs file
-## output: preprocessed fcs file
+
 
 # Adding "#" at the beginning of this line makes this a comment!
 # Use comments to tell the reader what you are doing (documentation).

@@ -31,7 +31,7 @@ leaf_cpop <- function(full_cpop) {
 ## plots ####
 
 # gating tree
-png(paste0(gateplot_dir, "/tree.png"))
+pdf(paste0(gateplot_dir, "/tree.pdf"))
 flowWorkspace::plot(gs)
 graphics.off()
 
