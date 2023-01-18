@@ -47,7 +47,7 @@ n_clust <- 30
 n_sample <- 5000
 
 # phenograph
-# TRY CHANGIN k (number of neighbours)
+# TRY CHANGING k (number of neighbours)
 pc_ <- Rphenograph::Rphenograph(flowCore::exprs(ff)[, names(markers)], k=50) 
 pc <- igraph::membership(pc_[[2]])
 
@@ -117,3 +117,6 @@ gpuc
 
 # # saving a ggplot is a bit different from saving the default plot:
 # ggplot2::ggsave(filename=paste0(res_dir, "/2D_tsne_phenograph.png"), plot=gpup)
+
+
+## we can also plot the clusters in 2D to compare it to the gating strategy

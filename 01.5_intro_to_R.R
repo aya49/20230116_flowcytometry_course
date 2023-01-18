@@ -122,7 +122,6 @@ print(a)
 
 a <- myfunction4(0, 10, 3)
 print(a)
-# > a <- myfunction4(0, 10, 3)
 # [1] 3
 # [1] 4
 # [1] 5
@@ -134,7 +133,7 @@ print(a)
 # [1] 11
 # [1] 12
 # [1] 13
-# > print(a)
+print(a)
 # [1] 13
 
 # 5. write a function called "myfunction5" that takes in two numeric variables
@@ -150,7 +149,8 @@ myfunction5(1,3)
 # FALSE FALSE TRUE
 
 # 6. write a function called "myfunction6" that print() out the following given
-#    three numeric variables.
+#    three numeric variables. 
+#    hint: use the function you created in question 5!
 myfunction6(1,3,50)
 # [1] "x is less than y"
 # [1] "x is less than z"
