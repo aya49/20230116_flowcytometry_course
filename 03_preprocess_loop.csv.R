@@ -3,6 +3,13 @@
 ## input: raw fcs file (multiple)
 ## output: preprocessed fcs file
 
+## note about .csv files
+# if you have tables/excel/matrices you want to load, you can load them via the
+# .csv format, (save as > .csv) by using the function:
+#   read.csv("file/path.csv", header=TRUE, row.names=TRUE) # set header/row.names to TRUE/FALSE based on whether column or row names exist in file.
+# if spillover matrices are not in the flow frame, likely they can be exported 
+# as a .csv file (as long as you can view them in excel, it can!).
+
 # specify path to folder containing all .fcs files you want to analyze
 folder_path <- "path/to/folder"
 

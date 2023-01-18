@@ -272,6 +272,7 @@ ff <- flowWorkspace::cytoframe_to_flowFrame(
         gs, "not_granulocytes"), Class="list")[[1]] )
 
 # <your gates/register/plot here>
+# populations you will gate: "monocytes", "not_monocytes"
 
 
 ## 2.6 gating not monocytes > not/eosoniphil ####
@@ -280,6 +281,7 @@ ff <- flowWorkspace::cytoframe_to_flowFrame(
         gs, "not_monocytes"), Class="list")[[1]] )
 
 # <your gates/register/plot here>
+# populations you will gate: "eosinophils", "not_not_eosinophils"
 
 
 ## 2.7 gating not eosoniphil > CD11b+/- ####
@@ -288,6 +290,7 @@ ff <- flowWorkspace::cytoframe_to_flowFrame(
         gs, "not_eosinophils"), Class="list")[[1]] )
 
 # <your gates/register/plot here>
+# cell populations you will gate: "CD161+", "CD161-"
 
 
 ## 2.8 gating CD161+ > NK/T ####
@@ -395,6 +398,7 @@ ff <- flowWorkspace::cytoframe_to_flowFrame(
         gs, "NKT"), Class="list")[[1]] )
 
 # <your gates/register/plot here>
+# cell populations you will gate: quad gate! names will be automatically given.
 
 
 ## 2.11 gating CD161- > not/tcells ####
@@ -472,6 +476,7 @@ flowCore::exprs(ffs)[,c("PE-Cy7-A","BV786-A")] <-
     rotate_data(flowCore::exprs(ff)[,c("PE-Cy7-A","BV786-A")], theta=-pi/4)
 
 # <your gates/register/plot here>
+# cell populations you will gate: "cDC", "bcells"
 
 
 ## 2.13 gating cDC > cDC CD11b+/- ####
@@ -495,6 +500,7 @@ gate_mhcii_low <- flowDensity::deGate(
 
 # get threshold gates
 # <your gates/register/plot here>
+# cell populations you will gate: "cDC_cd11b+", "cDC_cd11b-"
 
 
 ## 2.14 gating bcells > b1/b2 ####
