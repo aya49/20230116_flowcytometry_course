@@ -1,3 +1,8 @@
+## preprocessing fcs file
+## author: alice yue
+## input: raw fcs file (multiple)
+## output: preprocessed fcs file
+
 # specify path to folder containing all .fcs files you want to analyze
 folder_path <- "path/to/folder"
 
