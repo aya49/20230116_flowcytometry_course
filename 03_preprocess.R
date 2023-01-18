@@ -14,13 +14,6 @@ fcs_path <- system.file("extdata", "111.fcs", package="PeacoQC")
 # load fcs file
 f <- flowCore::read.FCS(fcs_path)
 
-## let's explore the fcs file = flow frame! ####
-## path to fcs file 
-fcs_path <- system.file("extdata", "111.fcs", package="PeacoQC")
-# fcs_path <- "/home/user/folder/file.fcs"
-
-## load fcs file = flow frame
-f <- flowCore::read.FCS(fcs_path)
 
 ## flowCore::exprs(f) is a matrix!
 dim(flowCore::exprs(f))
@@ -50,6 +43,8 @@ flowDensity::plotDens(f1, channels=c("Time", channel), ylim=channel_range)
 
 ## 1.1 compensate ####
 spillover <- flowCore::keyword(f)$SPILL
+# spillover <- read.csv("path", header=TRUE, row.names=TRUE)
+# flowCore::keyword(f)$SPILL <- spillover
 f <- flowCore::compensate(f, spillover=spillover)
 
 ## 1.2 logicle transform ####

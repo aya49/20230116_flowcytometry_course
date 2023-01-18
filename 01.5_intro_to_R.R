@@ -23,7 +23,7 @@ if (x) {
     print("x1 is betwen -4 and 10 and is not 0")
 }
 
-## TRUE/FALLSE can be used for indexing vectors
+## TRUE/FALSE can be used for indexing vectors
 xv1 <- c(1, 3, 5, 10, -1, 0, Inf, -Inf)
 xv2 <- append(xv1, c(NA, NULL, log(-1))) # append() merges two vectors or lists
 xv1
@@ -98,6 +98,18 @@ plot(m2, cex=0.5, col=colours, main="my first plot!")
 
 # 4. write a function called "myfunction4" that outputs the following:
 #    (you can assume the user gives 3 whole numbers as input arguments)
+
+myfunction4 <- function(a, b, c) {
+    if (a == b) {
+        return(c)
+    }
+    x <- 0
+    for (i in c(a:b)) {
+        x <- c + i
+        print(x)
+    }
+    return(x)
+}
 
 a <- myfunction4(2, -5, 6)
 print(a)

@@ -233,13 +233,6 @@ r1
 
 # 1. write a function called "function1" that does the following when called:
 
-function1 <- function(a, b, c) {
-    for (i in c(1:c)) {
-        print(a)
-        a <- a*b
-    }
-}
-
 function1(2, 3, 6)
 # output printed (print()) to console:
 # [1] 2
@@ -252,22 +245,6 @@ function1(2, 3, 6)
 # 2. write a function called "function2" that, when given two vectors,
 #    return() TRUE if the two vectors are identicle, and FALSE otherwise:
 
-function2 <- function(x, y) {
-    if (length(x) == length(y)) {
-        # two vectors have same length
-        i <- 1
-        while (i <= length(x)) {
-            if (x[i] != y[i]) {
-                return(FALSE)
-            }
-            i <- i + 1
-        }
-        return(TRUE)
-    } else {
-        return(FALSE)
-    }
-}
-
 function2(c(1,2,3), c(2,3,4))
 # [1] FALSE
 function2(c(1,1,2), c(1,1))
@@ -279,37 +256,6 @@ function2(c(2,3), c(2,3))
 #    that have the same number of columns in a list given by the user.
 #    return() a list that contains all the rbind()-ed matrices.
 #    hint: try using the function unique(), (use ?unique to read about it!)
-
-funtion3 <- function(l3) {
-    # rbind() all matrices in l3 with the same number of columns
-    if (length(l3) <= 1) {
-        return(l3)
-    }
-    # sapply(l3, ncol)
-    
-    # find the number of columns for each matrix
-    ncolumns <- rep(0, length(l3))
-    for (i in c(1:length(l3))) {
-        ncolumns[i] <- ncol(l3[[i]])
-    }
-    uc <- unique(ncolumns)
-    l3_new <- l3
-    l3_new <- list()
-    for (i in uc) {
-        a <- matrix(0, nrow=0, ncol=0)
-        for (j in c(1:l3)) {
-            if (i==ncolumns[j]) {
-                if (ncol(a)!=i) {
-                    a <- l3[[j]]
-                } else {
-                    a <- rbind(a, l3[[j]])
-                }
-                
-            }
-        }
-        l3_new <- append(l3_new, a)
-    }
-}
 
 list3 <- list(
     matrix(0, nrow=2, ncol=4),
@@ -357,6 +303,7 @@ function1 <- function(a, b, c) {
     }
 }
 
+
 # 2.
 function2 <- function(a, b) {
     if (length(a) != length(b)) {
@@ -369,6 +316,23 @@ function2 <- function(a, b) {
     }
     return(TRUE)
 }
+
+function2 <- function(x, y) {
+    if (length(x) == length(y)) {
+        # two vectors have same length
+        i <- 1
+        while (i <= length(x)) {
+            if (x[i] != y[i]) {
+                return(FALSE)
+            }
+            i <- i + 1
+        }
+        return(TRUE)
+    } else {
+        return(FALSE)
+    }
+}
+
 
 # 3.
 function3 <- function(list3) {
@@ -389,4 +353,35 @@ function3 <- function(list3) {
         listr[[nui]] <- l3m
     }
     return(listr)
+}
+
+funtion3 <- function(l3) {
+    # rbind() all matrices in l3 with the same number of columns
+    if (length(l3) <= 1) {
+        return(l3)
+    }
+    # sapply(l3, ncol)
+    
+    # find the number of columns for each matrix
+    ncolumns <- rep(0, length(l3))
+    for (i in c(1:length(l3))) {
+        ncolumns[i] <- ncol(l3[[i]])
+    }
+    uc <- unique(ncolumns)
+    l3_new <- l3
+    l3_new <- list()
+    for (i in uc) {
+        a <- matrix(0, nrow=0, ncol=0)
+        for (j in c(1:l3)) {
+            if (i==ncolumns[j]) {
+                if (ncol(a)!=i) {
+                    a <- l3[[j]]
+                } else {
+                    a <- rbind(a, l3[[j]])
+                }
+                
+            }
+        }
+        l3_new <- append(l3_new, a)
+    }
 }
