@@ -99,18 +99,6 @@ plot(m2, cex=0.5, col=colours, main="my first plot!")
 # 4. write a function called "myfunction4" that outputs the following:
 #    (you can assume the user gives 3 whole numbers as input arguments)
 
-myfunction4 <- function(a, b, c) {
-    if (a == b) {
-        return(c)
-    }
-    x <- 0
-    for (i in c(a:b)) {
-        x <- c + i
-        print(x)
-    }
-    return(x)
-}
-
 a <- myfunction4(2, -5, 6)
 print(a)
 # > a <- myfunction4(2, -5, 6)

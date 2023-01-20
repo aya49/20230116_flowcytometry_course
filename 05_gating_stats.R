@@ -65,25 +65,29 @@ for (cp in cpops) {
     mefi <- apply(flowCore::exprs(ff)[,names(marker),drop=FALSE], 2, median)
     mfi <- apply(flowCore::exprs(ff)[,names(marker),drop=FALSE], 2, mean)
     sdfi <- apply(flowCore::exprs(ff)[,names(marker),drop=FALSE], 2, sd)
+    
     cvfi <- sdfi/mfi
     
     statsl[[cp]] <- data.frame(mefi, mfi, sdfi, cvfi)
 }
 
 # let's look at the mfi's for each cell population across each marker :3
-mfis <- data.frame()
+mfi_covs <- data.frame()
 for (cpop in cpops) {
     parent <- leaf_cpop(parent_cpop(cpop))
-    mfis <- rbind(mfis, data.frame(
+    mfi_covs <- rbind(mfi_covs, data.frame(
         parent=parent,
         cpop=paste0(parent, "/", leaf_cpop(cpop)), 
         marker=flowCore::markernames(ff), 
-        mfi=statsl[[cpop]][["mfi"]]))
+        median_fi=statsl[[cpop]][["mefi"]],
+        variance_fi=statsl[[cpop]][["cvfi"]]))
 }
-cpmfi <- ggplot2::ggplot(mfis, ggplot2::aes(x=marker, y=mfi, colour=parent, group=cpop)) +
+cpmfi <- ggplot2::ggplot(mfi_covs, ggplot2::aes(
+    x=marker, y=median_fi, colour=1/variance_fi)) +
     ggplot2::geom_point() +
-    ggplot2::geom_line() +
+    ggplot2::geom_line(ggplot2::aes(group=cpop)) +
     ggplot2::facet_wrap(cpop~., scales="free_y") +
+    ggplot2::scale_colour_continuous(type="viridis") + 
     ggplot2::theme(axis.text.x=ggplot2::element_text(
         angle=90, vjust = 0.5, hjust=1)) # turn x axis text sideways
 cpmfi
@@ -155,13 +159,10 @@ head(plfc[order(plfc[["p_value"]]),])
 
 ## TRY: practice problem ####
 
-# 1. instead of comparing the cell count or the cell percentage, it is also
-#    common to compare the "mfi" or the mean fluorescent intensity for each
-#    marker across samples for the same cell population.
-#    
-# your task: for any one marker and any one cell population of your choosing, 
-#            generate another table, like statsm_multiple, where
-#            you simulate mfi values for 100 samples, 
+# 1. in 03_preprocess_loop.csv, there was a comment on how to save matrices
+#    and data.frames as .csv files. select some of the data.frame or matrix
+#    that you think is important to keep for record above and save them as .csv
+#    fils.
 
 # 2. another common approach to comparing cell populations is to get the 
 #    percentage of cells in a cell population NOT over the total number of 
@@ -180,3 +181,11 @@ parent_cpop("/live/lymphocytes/not_granulocytes/not_monocytes")
 
 # <your code here>
 # e.g. statsm_multiple[["cell_percent"]] <- ...
+
+# 3. instead of comparing the cell count or the cell percentage, it is also
+#    common to compare the "mfi" or the mean fluorescent intensity for each
+#    marker across samples for the same cell population.
+#    
+# your task: for any one marker and any one cell population of your choosing, 
+#            generate another table, like statsm_multiple, where
+#            you simulate mfi values for 100 samples, 

@@ -49,7 +49,7 @@ f <- flowCore::compensate(f, spillover=spillover)
 
 ## 1.2 logicle transform ####
 transformList <- flowCore::estimateLogicle(f, channels=colnames(spillover))
-f <- flowWorkspace::transform(f, transformList)
+f <- flowCore::transform(f, transformList)
 
 # let's look at the Time vs FSC-A plot to see the flow of cells
 flowDensity::plotDens(f, channels=c("Time", "FSC-A"))
