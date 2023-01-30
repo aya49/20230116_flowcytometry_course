@@ -8,6 +8,7 @@ library("flowCore")
 library("PeacoQC")
 library("flowWorkspace")
 library("flowDensity")
+# library("ggpointdensity") # for easier density scatterplots
 
 # directory to save results in
 res_dir <- "/home/maruko/projects/gating"
